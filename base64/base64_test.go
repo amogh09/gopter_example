@@ -10,7 +10,10 @@ import (
 )
 
 func TestEncodeDecode(t *testing.T) {
-	properties := gopter.NewProperties(nil)
+	params := gopter.DefaultTestParameters()
+	params.MaxSize = 10000
+	params.MinSuccessfulTests = 1000
+	properties := gopter.NewProperties(params)
 
 	properties.Property("encode-decode works", prop.ForAll(
 		func(s string) bool {
@@ -23,7 +26,10 @@ func TestEncodeDecode(t *testing.T) {
 }
 
 func TestEncode(t *testing.T) {
-	properties := gopter.NewProperties(nil)
+	params := gopter.DefaultTestParameters()
+	params.MaxSize = 10000
+	params.MinSuccessfulTests = 1000
+	properties := gopter.NewProperties(params)
 
 	properties.Property("encode matches standard lib", prop.ForAll(
 		func(s string) bool {
