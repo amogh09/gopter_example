@@ -12,7 +12,7 @@ import (
 func TestMaximum(t *testing.T) {
 	properties := gopter.NewProperties(&gopter.TestParameters{MinSize: 1})
 
-	properties.Property("maximum is greater than or equal to all", prop.ForAll(
+	properties.Property("maximum is smaller than no element", prop.ForAll(
 		func(nums []int) bool {
 			m := Maximum(nums)
 			for _, n := range nums {
