@@ -35,6 +35,8 @@ func toBST(keys []int) gopter.Gen {
 			i := v.(int)
 			lefts := keys[:i]    // values for left subtrree
 			rights := keys[i+1:] // values for right subtree
+
+			// Generate left and right subtrees and then generate a tree with those subtrees
 			return toBST(lefts).FlatMap(func(v interface{}) gopter.Gen {
 				var left *TreeNode
 				if v == nil {
@@ -88,14 +90,39 @@ func pointerEqual[T comparable](x *T, y *T) string {
 }
 
 func TestFirstKeyGreaterThan(t *testing.T) {
-	params := gopter.DefaultTestParameters()
-	params.MinSize = 1
-	properties := gopter.NewProperties(params)
-	type bstWithKeysWithInt struct {
+	type firstKeyGreaterThanTestcase struct {
 		bstWithKeys bstWithKeys
 		n           int
 	}
-	properties.Property("test", prop.ForAll(func(bstKeysInt bstWithKeysWithInt) string {
+
+	// test params
+	params := gopter.DefaultTestParameters()
+	params.MinSize = 1
+	properties := gopter.NewProperties(params)
+
+	// Test case generator for FirstKeyGreaterThan function that generates
+	// a BST and an integer to call FirstKeyGreaterThan function with.
+	gen := bstWithKeysGen().FlatMap(func(v interface{}) gopter.Gen {
+		bstKeys := v.(*bstWithKeys)
+
+		// Generators that generate random integers lower than, between, and greater than
+		// BST keys, respectively.
+		lows := gen.IntRange(math.MinInt, bstKeys.keys[0]-1)
+		mids := gen.IntRange(bstKeys.keys[0], bstKeys.keys[len(bstKeys.keys)-1])
+		highs := gen.IntRange(bstKeys.keys[len(bstKeys.keys)-1], math.MaxInt)
+
+		// Make the integer argument for FirstKeyGreaterThan lower than, between, and greater than
+		// BST keys with equal frequencies to get good test data.
+		return gen.Weighted([]gen.WeightedGen{
+			{Weight: 1, Gen: lows},
+			{Weight: 1, Gen: mids},
+			{Weight: 1, Gen: highs},
+		}).Map(func(n int) firstKeyGreaterThanTestcase {
+			return firstKeyGreaterThanTestcase{bstWithKeys: *bstKeys, n: n}
+		})
+	}, reflect.TypeOf((*bstWithKeys)(nil)))
+
+	properties.Property("test", prop.ForAll(func(bstKeysInt firstKeyGreaterThanTestcase) string {
 		bstKeys := bstKeysInt.bstWithKeys
 		n := bstKeysInt.n
 		// t.Logf("tree: %v", bstKeys.bst)
@@ -108,16 +135,7 @@ func TestFirstKeyGreaterThan(t *testing.T) {
 		}
 		actual := bstKeys.bst.FirstKeyGreaterThan(n)
 		return pointerEqual(expected, actual)
-	}, bstWithKeysGen().FlatMap(func(v interface{}) gopter.Gen {
-		bstKeys := v.(*bstWithKeys)
-		lows := gen.IntRange(math.MinInt, bstKeys.keys[0]-1)
-		mids := gen.IntRange(bstKeys.keys[0], bstKeys.keys[len(bstKeys.keys)-1])
-		highs := gen.IntRange(bstKeys.keys[len(bstKeys.keys)-1], math.MaxInt)
-		return gen.Weighted([]gen.WeightedGen{
-			{Weight: 1, Gen: lows},
-			{Weight: 1, Gen: mids},
-			{Weight: 1, Gen: highs},
-		}).Map(func(n int) bstWithKeysWithInt { return bstWithKeysWithInt{bstWithKeys: *bstKeys, n: n} })
-	}, reflect.TypeOf((*bstWithKeys)(nil)))))
+	}, gen))
+
 	properties.TestingRun(t)
 }
