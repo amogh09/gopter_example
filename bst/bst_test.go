@@ -11,38 +11,49 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func toBST(nums []int) gopter.Gen {
-	if len(nums) == 0 {
-		return func(gp *gopter.GenParameters) *gopter.GenResult {
-			result := gopter.NewEmptyResult(reflect.TypeOf((*TreeNode)(nil)))
-			result.Sieve = func(i interface{}) bool { return true }
-			return result
-		}
+// A generator that always generates nil
+func nilGen() gopter.Gen {
+	// generate a nil value. Couldn't find a better way to do this.
+	return func(gp *gopter.GenParameters) *gopter.GenResult {
+		result := gopter.NewEmptyResult(reflect.TypeOf((*TreeNode)(nil)))
+		result.Sieve = func(i interface{}) bool { return true } // all values accepted
+		return result
 	}
-
-	return gen.IntRange(0, len(nums)-1).FlatMap(func(v interface{}) gopter.Gen {
-		i := v.(int)
-		lefts := nums[:i]
-		rights := nums[i+1:]
-		return toBST(lefts).FlatMap(func(v interface{}) gopter.Gen {
-			var left *TreeNode
-			if v == nil {
-				left = nil
-			} else {
-				left = v.(*TreeNode)
-			}
-			return toBST(rights).Map(func(right *TreeNode) *TreeNode {
-				return &TreeNode{
-					val:   nums[i],
-					left:  left,
-					right: right,
-				}
-			})
-		}, reflect.TypeOf((*TreeNode)(nil)))
-	}, reflect.TypeOf(int(0)))
 }
 
-func treeGen() gopter.Gen {
+// Generates a random Binary Search Tree with the given values.
+func toBST(nums []int) gopter.Gen {
+	if len(nums) == 0 {
+		return nilGen()
+	}
+
+	// choose a random index as pivot
+	return gen.
+		IntRange(0, len(nums)-1).
+		FlatMap(func(v interface{}) gopter.Gen {
+			i := v.(int)
+			lefts := nums[:i]    // values for left subtrree
+			rights := nums[i+1:] // values for right subtree
+			return toBST(lefts).FlatMap(func(v interface{}) gopter.Gen {
+				var left *TreeNode
+				if v == nil {
+					left = nil
+				} else {
+					left = v.(*TreeNode)
+				}
+				return toBST(rights).Map(func(right *TreeNode) *TreeNode {
+					return &TreeNode{
+						val:   nums[i],
+						left:  left,
+						right: right,
+					}
+				})
+			}, reflect.TypeOf((*TreeNode)(nil)))
+		}, reflect.TypeOf(int(0)))
+}
+
+// Generates a Binary Search Tree
+func bstGen() gopter.Gen {
 	return gen.SliceOf(gen.IntRange(0, math.MaxInt32)).FlatMap(func(v interface{}) gopter.Gen {
 		nums := v.([]int)
 		slices.Sort(nums)
@@ -58,6 +69,6 @@ func TestBst(t *testing.T) {
 	properties.Property("test", prop.ForAll(func(tree *TreeNode) bool {
 		t.Logf("tree: %v", tree)
 		return true
-	}, treeGen()))
+	}, bstGen()))
 	properties.TestingRun(t)
 }
