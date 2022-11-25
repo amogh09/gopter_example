@@ -29,30 +29,28 @@ func toBST(keys []int) gopter.Gen {
 	}
 
 	// choose a random index as pivot
-	return gen.
-		IntRange(0, len(keys)-1).
-		FlatMap(func(v interface{}) gopter.Gen {
-			i := v.(int)
-			lefts := keys[:i]    // values for left subtrree
-			rights := keys[i+1:] // values for right subtree
+	return gen.IntRange(0, len(keys)-1).FlatMap(func(v interface{}) gopter.Gen {
+		i := v.(int)
+		lefts := keys[:i]    // values for left subtrree
+		rights := keys[i+1:] // values for right subtree
 
-			// Generate left and right subtrees and then generate a tree with those subtrees
-			return toBST(lefts).FlatMap(func(v interface{}) gopter.Gen {
-				var left *TreeNode
-				if v == nil {
-					left = nil
-				} else {
-					left = v.(*TreeNode)
+		// Generate left and right subtrees and then generate a tree with those subtrees
+		return toBST(lefts).FlatMap(func(v interface{}) gopter.Gen {
+			var left *TreeNode
+			if v == nil {
+				left = nil
+			} else {
+				left = v.(*TreeNode)
+			}
+			return toBST(rights).Map(func(right *TreeNode) *TreeNode {
+				return &TreeNode{
+					val:   keys[i],
+					left:  left,
+					right: right,
 				}
-				return toBST(rights).Map(func(right *TreeNode) *TreeNode {
-					return &TreeNode{
-						val:   keys[i],
-						left:  left,
-						right: right,
-					}
-				})
-			}, reflect.TypeOf((*TreeNode)(nil)))
-		}, reflect.TypeOf(int(0)))
+			})
+		}, reflect.TypeOf((*TreeNode)(nil)))
+	}, reflect.TypeOf(int(0)))
 }
 
 // Contains a Binary Search Tree and all its keys in in-order
