@@ -15,7 +15,7 @@ func TestEncodeDecode(t *testing.T) {
 	params.MinSuccessfulTests = 1000
 	properties := gopter.NewProperties(params)
 
-	properties.Property("encode-decode works", prop.ForAll(
+	properties.Property("decoding an encoded string is a no-op", prop.ForAll(
 		func(s string) bool {
 			return Decode((Encode(s))) == s
 		},
