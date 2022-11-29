@@ -6,6 +6,7 @@ import (
 	"github.com/leanovate/gopter"
 	"github.com/leanovate/gopter/gen"
 	"github.com/leanovate/gopter/prop"
+	"github.com/stretchr/testify/assert"
 	"golang.org/x/exp/slices"
 )
 
@@ -33,4 +34,14 @@ func TestMaximum(t *testing.T) {
 	))
 
 	properties.TestingRun(t)
+}
+
+// Typical example based test for maximum function
+func TestMaximumExampleBased(t *testing.T) {
+	t.Run("maximum should be 3", func(t *testing.T) {
+		assert.Equal(t, 3, Maximum([]int{1, 2, 3}))
+	})
+	t.Run("maximum should be 5", func(t *testing.T) {
+		assert.Equal(t, 5, Maximum([]int{5, 1, 2, 3}))
+	})
 }
