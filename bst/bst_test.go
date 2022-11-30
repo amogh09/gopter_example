@@ -68,14 +68,14 @@ type bstWithKeys struct {
 // Generates a Binary Search Tree with keys
 func bstWithKeysGen() gopter.Gen {
 	return gen.SliceOf(gen.IntRange(0, 30)).
-		Map(func(nums []int) []int {
-			slices.Sort(nums)
-			return nums
+		Map(func(keys []int) []int {
+			slices.Sort(keys)
+			return keys
 		}).
 		FlatMap(func(v interface{}) gopter.Gen {
-			nums := v.([]int)
-			return toBST(nums).Map(func(bst *TreeNode) *bstWithKeys {
-				return &bstWithKeys{bst: bst, keys: nums}
+			keys := v.([]int)
+			return toBST(keys).Map(func(bst *TreeNode) *bstWithKeys {
+				return &bstWithKeys{bst: bst, keys: keys}
 			})
 		}, reflect.TypeOf(([]int)(nil)))
 }
