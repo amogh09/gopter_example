@@ -130,8 +130,8 @@ func TestFirstKeyGreaterThan(t *testing.T) {
 		})
 	}, reflect.TypeOf((*bstWithKeys)(nil)))
 
-	properties.Property("returned key is the first one greater than the input key",
-		prop.ForAll(func(bstKeysInt firstKeyGreaterThanTestcase) string {
+	properties.Property("returned key is the first one greater than the input key", prop.ForAll(
+		func(bstKeysInt firstKeyGreaterThanTestcase) string {
 			bstKeys := bstKeysInt.bstWithKeys
 			n := bstKeysInt.n
 			// t.Logf("tree: %v", bstKeys.bst)

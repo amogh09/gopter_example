@@ -12,15 +12,17 @@ func (t TreeNode) String() string {
 	return fmt.Sprintf("%v (%v) (%v)", t.key, t.left, t.right)
 }
 
-func (t *TreeNode) FirstKeyGreaterThan(key int) *int {
-	if t == nil {
+// Returns the first key in the Binary Search Tree that is greater than the provided key.
+// Returns nil if there is no such key in the tree.
+func (root *TreeNode) FirstKeyGreaterThan(key int) *int {
+	if root == nil {
 		return nil
-	} else if t.key <= key {
-		return t.right.FirstKeyGreaterThan(key)
+	} else if root.key <= key {
+		return root.right.FirstKeyGreaterThan(key)
 	} else {
-		res := t.left.FirstKeyGreaterThan(key)
+		res := root.left.FirstKeyGreaterThan(key)
 		if res == nil {
-			return &t.key
+			return &root.key
 		} else {
 			return res
 		}
