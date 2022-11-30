@@ -121,13 +121,10 @@ func TestFirstKeyGreaterThan(t *testing.T) {
 
 		// Make the integer argument for FirstKeyGreaterThan lower than, between, and greater than
 		// BST keys with equal frequencies to get good test data.
-		return gen.Weighted([]gen.WeightedGen{
-			{Weight: 1, Gen: lows},
-			{Weight: 1, Gen: mids},
-			{Weight: 1, Gen: highs},
-		}).Map(func(n int) firstKeyGreaterThanTestcase {
-			return firstKeyGreaterThanTestcase{bstWithKeys: *bstKeys, n: n}
-		})
+		return gen.OneGenOf(lows, mids, highs).
+			Map(func(n int) firstKeyGreaterThanTestcase {
+				return firstKeyGreaterThanTestcase{bstWithKeys: *bstKeys, n: n}
+			})
 	}, reflect.TypeOf((*bstWithKeys)(nil)))
 
 	properties.Property("returned key is the first one greater than the input key", prop.ForAll(
