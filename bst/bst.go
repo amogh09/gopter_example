@@ -3,24 +3,24 @@ package bst
 import "fmt"
 
 type TreeNode struct {
-	val   int
+	key   int
 	left  *TreeNode
 	right *TreeNode
 }
 
 func (t TreeNode) String() string {
-	return fmt.Sprintf("%v (%v) (%v)", t.val, t.left, t.right)
+	return fmt.Sprintf("%v (%v) (%v)", t.key, t.left, t.right)
 }
 
-func (t *TreeNode) FirstKeyGreaterThan(n int) *int {
+func (t *TreeNode) FirstKeyGreaterThan(key int) *int {
 	if t == nil {
 		return nil
-	} else if t.val <= n {
-		return t.right.FirstKeyGreaterThan(n)
+	} else if t.key <= key {
+		return t.right.FirstKeyGreaterThan(key)
 	} else {
-		res := t.left.FirstKeyGreaterThan(n)
+		res := t.left.FirstKeyGreaterThan(key)
 		if res == nil {
-			return &t.val
+			return &t.key
 		} else {
 			return res
 		}

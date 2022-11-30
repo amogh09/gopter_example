@@ -50,7 +50,7 @@ func toBST(keys []int) gopter.Gen {
 			left := cast[TreeNode](v)
 			return toBST(rights).Map(func(right *TreeNode) *TreeNode {
 				return &TreeNode{
-					val:   keys[i],
+					key:   keys[i],
 					left:  left,
 					right: right,
 				}
