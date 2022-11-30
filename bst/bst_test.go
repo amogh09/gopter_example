@@ -22,6 +22,17 @@ func nilGen() gopter.Gen {
 	}
 }
 
+// Cast an interface type v to a concrete type *T while handling nil pointer errors.
+func cast[T any](v interface{}) *T {
+	var casted *T
+	if v == nil {
+		casted = nil
+	} else {
+		casted = v.(*T)
+	}
+	return casted
+}
+
 // Generates a random Binary Search Tree with the given keys.
 func toBST(keys []int) gopter.Gen {
 	if len(keys) == 0 {
@@ -36,12 +47,7 @@ func toBST(keys []int) gopter.Gen {
 
 		// Generate left and right subtrees and then generate a tree with those subtrees
 		return toBST(lefts).FlatMap(func(v interface{}) gopter.Gen {
-			var left *TreeNode
-			if v == nil {
-				left = nil
-			} else {
-				left = v.(*TreeNode)
-			}
+			left := cast[TreeNode](v)
 			return toBST(rights).Map(func(right *TreeNode) *TreeNode {
 				return &TreeNode{
 					val:   keys[i],
