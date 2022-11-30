@@ -67,13 +67,17 @@ type bstWithKeys struct {
 
 // Generates a Binary Search Tree with keys
 func bstWithKeysGen() gopter.Gen {
-	return gen.SliceOf(gen.IntRange(0, 30)).FlatMap(func(v interface{}) gopter.Gen {
-		nums := v.([]int)
-		slices.Sort(nums)
-		return toBST(nums).Map(func(bst *TreeNode) *bstWithKeys {
-			return &bstWithKeys{bst: bst, keys: nums}
-		})
-	}, reflect.TypeOf(([]int)(nil)))
+	return gen.SliceOf(gen.IntRange(0, 30)).
+		Map(func(nums []int) []int {
+			slices.Sort(nums)
+			return nums
+		}).
+		FlatMap(func(v interface{}) gopter.Gen {
+			nums := v.([]int)
+			return toBST(nums).Map(func(bst *TreeNode) *bstWithKeys {
+				return &bstWithKeys{bst: bst, keys: nums}
+			})
+		}, reflect.TypeOf(([]int)(nil)))
 }
 
 // Helper function for comparing two pointer values.
