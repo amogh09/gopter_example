@@ -11,7 +11,9 @@ import (
 )
 
 func TestMaximum(t *testing.T) {
-	properties := gopter.NewProperties(&gopter.TestParameters{MinSize: 1})
+	params := gopter.DefaultTestParameters()
+	params.MinSize = 1
+	properties := gopter.NewProperties(params)
 
 	properties.Property("maximum is smaller than no element", prop.ForAll(
 		func(nums []int) bool {
